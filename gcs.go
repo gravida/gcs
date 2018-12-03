@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"github.com/gravida/gcs/routers"
 )
 
 func main() {
-	fmt.Println("Hello world!!")
+	g := routers.InitRouter()
+	g.Run()
 }
