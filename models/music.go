@@ -53,6 +53,12 @@ func AddMusic(m *Music) (err error) {
 	return sess.Commit()
 }
 
+// update
+func UpdateMusic(m *Music) (err error) {
+	_, err = x.Id(m.Id).Update(m)
+	return err
+}
+
 // GetMusicByID -
 func GetMusicByID(id int64) (*Music, error) {
 	m := new(Music)

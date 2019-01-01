@@ -61,10 +61,20 @@ func InitRouter() *gin.Engine {
 
 	v1Group := r.Group("/v1")
 	{
+		v1Group.POST("/register", v1.Register)
+		v1Group.POST("/login", v1.Login)
+		v1Group.GET("/validate", v1.ValidateEmail)
+
+		v1Group.GET("/users", v1.Users)
+		v1Group.GET("/users/:id", v1.GetUser)
+		v1Group.POST("/users", v1.PostUser)
+		v1Group.PUT("/users/:id", v1.PutUser)
+
 		// easyapi.Router(v1, new(version1.ProjectApi))
 		v1Group.GET("/musics", v1.Musics)
 		v1Group.GET("/musics/:id", v1.GetMusic)
 		v1Group.POST("/musics", v1.PostMusic)
+		v1Group.PUT("/musics/:id", v1.PutMusic)
 		// v1.GET("/projects/:id", project.Get)
 		// v1.POST("/projects", project.Post)
 		// v1.PUT("/projects", project.Put)

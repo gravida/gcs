@@ -7,6 +7,13 @@ import (
 	"github.com/gravida/gcs/pkg/utils"
 )
 
+type Music struct {
+	Name    string `json:"name"`
+	Picture string `json:"picture"`
+	Url     string `json:"url"`
+	Source  string `json:"source"`
+}
+
 // curl http://localhost:8080/v1/musics
 func Musics(c *gin.Context) {
 	page := utils.DefaultQueryForInt(c, "page", 1)
@@ -64,4 +71,47 @@ func PostMusic(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"id": music.Id,
 	})
+}
+
+func PutMusic(c *gin.Context) {
+	id, err := utils.ParamFromID(c, "id")
+	if err != nil {
+		output.BadRequestJSON(c, err.Error())
+		return
+	}
+	music, err := models.GetMusicByID(id)
+	if err != nil {
+		output.NotFoundJSON(c, err.Error())
+		return
+	}
+	var m Music
+
+	err = c.BindJSON(&m)
+	if err != nil {
+		output.BadRequestJSON(c, err.Error())
+		return
+	}
+
+	if m.Name != "" {
+		music.Name = m.Name
+	}
+
+	if m.Picture != "" {
+		music.Picture = m.Picture
+	}
+
+	if m.Url != "" {
+		music.Url = m.Url
+	}
+
+	if m.Source != "" {
+		music.Source = m.Source
+	}
+
+	err = models.UpdateMusic(music)
+	if err != nil {
+		output.BadRequestJSON(c, err.Error())
+		return
+	}
+	output.SuccessJSON(c, music)
 }

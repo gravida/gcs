@@ -20,6 +20,8 @@ var (
 
 func init() {
 	tables = append(tables,
+		new(Code),
+		new(User),
 		new(Music))
 }
 

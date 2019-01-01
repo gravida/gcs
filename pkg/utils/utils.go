@@ -4,8 +4,14 @@ import (
 	"crypto/rand"
 	"github.com/gin-gonic/gin"
 	"math/big"
+	"regexp"
 	"strconv"
 )
+
+func DefaultQueryPage(c *gin.Context) (int, int) {
+	return DefaultQueryForInt(c, "page", 1), DefaultQueryForInt(c, "pageSize", 10)
+
+}
 
 // DefaultQueryForInt returns the keyed url query value if it exists
 func DefaultQueryForInt(c *gin.Context, key string, defaultValue int) int {
@@ -55,4 +61,14 @@ func randomInt(max *big.Int) (int, error) {
 	}
 
 	return int(rand.Int64()), nil
+}
+
+func VerifyEmailFormat(email string) bool {
+	pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*` //匹配电子邮箱
+	reg := regexp.MustCompile(pattern)
+	return reg.MatchString(email)
+}
+
+func VerifyPhoneFormat(phone string) bool {
+	return len(phone) == 11
 }
