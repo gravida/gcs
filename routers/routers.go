@@ -3,6 +3,7 @@ package routers
 import (
 	// "github.com/gin-contrib/gzip"
 	"fmt"
+	"github.com/freelifer/gin-plus"
 	"github.com/gin-gonic/gin"
 	"github.com/gravida/gcs/apis/v1"
 	"net/http"
@@ -69,6 +70,10 @@ func InitRouter() *gin.Engine {
 		v1Group.GET("/users/:id", v1.GetUser)
 		v1Group.POST("/users", v1.PostUser)
 		v1Group.PUT("/users/:id", v1.PutUser)
+
+		ginplus.Route(v1Group, "roles", &v1.RoleController{})
+		ginplus.Route(v1Group, "operations", &v1.OperationController{})
+		// ginplus.Route(v1Group, "permissions", &v1.PermissionController{})
 
 		// easyapi.Router(v1, new(version1.ProjectApi))
 		v1Group.GET("/musics", v1.Musics)

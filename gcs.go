@@ -16,5 +16,5 @@ func main() {
 	models.Setup()
 
 	g := routers.InitRouter()
-	g.Run(":54321")
+	g.Run(settings.AppCfg.Addr)
 }

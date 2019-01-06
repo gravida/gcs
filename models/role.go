@@ -6,9 +6,9 @@ import ()
 type Role struct {
 	Id      int64  `json:"id"`
 	Name    string `xorm:"UNIQUE NOT NULL" json:"name"`
-	Enable  bool
-	Created int64 `xorm:"created"`
-	Updated int64 `xorm:"updated"`
+	Enable  bool   `json:"enable"`
+	Created int64  `xorm:"created" json:"created"`
+	Updated int64  `xorm:"updated" json:"updated"`
 }
 
 // Add
@@ -34,14 +34,22 @@ func UpdateRole(r *Role) (err error) {
 	return err
 }
 
+// validate name -
+func ExistRoleByName(uid int64, name string) (bool, error) {
+	if len(name) == 0 {
+		return false, nil
+	}
+	return x.Where("id != ?", uid).Get(&Role{Name: name})
+}
+
 // query
-func queryRoleByID(id int64) (*Role, bool, error) {
+func QueryRoleByID(id int64) (*Role, bool, error) {
 	role := new(Role)
 	has, err := x.Id(id).Get(role)
 	return role, has, err
 }
 
-func queryAllRoles(page, pageSize int) ([]*Role, error) {
+func QueryAllRoles(page, pageSize int) ([]*Role, error) {
 	roles := make([]*Role, 0, pageSize)
 	return roles, x.Limit(pageSize, (page-1)*pageSize).Asc("id").Find(&roles)
 }

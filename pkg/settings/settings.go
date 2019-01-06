@@ -8,7 +8,7 @@ import (
 
 var (
 	AppCfg struct {
-		Name, Version, Port string
+		Name, Version, Addr string
 	}
 	ServerCfg struct {
 		RunMode      string

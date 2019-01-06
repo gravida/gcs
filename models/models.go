@@ -22,6 +22,8 @@ func init() {
 	tables = append(tables,
 		new(Code),
 		new(User),
+		new(Role),
+		new(RolePermission), new(Menu), new(Operation),
 		new(Music))
 }
 
