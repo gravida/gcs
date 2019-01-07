@@ -113,7 +113,7 @@ func ExistOperationByKey(uid int64, key string) (bool, error) {
 }
 
 // count
-func CountOperation() (total int64, err error) {
+func CountOperations() (total int64, err error) {
 	operation := new(Operation)
 	total, err = x.Count(operation)
 	return total, err

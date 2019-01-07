@@ -6,6 +6,7 @@ import (
 	"github.com/gravida/gcs/models"
 	"github.com/gravida/gcs/pkg/output"
 	"github.com/gravida/gcs/pkg/utils"
+	"log"
 )
 
 type RoleController struct {
@@ -14,21 +15,27 @@ type RoleController struct {
 
 type Role struct {
 	Name   string `json:"name"`
+	Desc   string `json:"desc"`
 	Enable bool   `json:"enable"`
 }
 
-func (r *RoleController) List(g *gin.Context) {
-	page, pageSize := utils.DefaultQueryPage(g)
+func (controller *RoleController) List(c *gin.Context) {
+	page, pageSize := utils.DefaultQueryPage(c)
 	roles, err := models.QueryAllRoles(page, pageSize)
 	if err != nil {
 		// 系统错误
-		output.InternalErrorJSON(g, err.Error())
+		output.InternalErrorJSON(c, err.Error())
 		return
 	}
-	output.SuccessJSON(g, roles)
+
+	total, _ := models.CountRoles()
+	output.SuccessJSON1(c, gin.H{
+		"pager": gin.H{"page": page, "pageSize": pageSize, "total": total},
+		"data":  roles,
+	})
 }
 
-func (r *RoleController) Get(g *gin.Context) {
+func (controller *RoleController) Get(g *gin.Context) {
 	id, err := utils.ParamFromID(g, "id")
 	if err != nil {
 		output.BadRequestJSON(g, err.Error())
@@ -45,20 +52,21 @@ func (r *RoleController) Get(g *gin.Context) {
 	}
 	output.SuccessJSON(g, user)
 }
-func (r *RoleController) Post(g *gin.Context) {
-	var role Role
-	err := g.BindJSON(&role)
+
+func (controller *RoleController) Post(g *gin.Context) {
+	var remoteRole Role
+	err := g.BindJSON(&remoteRole)
 	if err != nil {
 		output.BadRequestJSON(g, err.Error())
 		return
 	}
 
-	if len(role.Name) == 0 {
+	if len(remoteRole.Name) == 0 {
 		output.BadRequestJSON(g, "role name must not empty")
 		return
 	}
 
-	has, err := models.ExistRoleByName(0, role.Name)
+	has, err := models.ExistRoleByName(0, remoteRole.Name)
 	if err != nil {
 		output.InternalErrorJSON(g, err.Error())
 		return
@@ -68,21 +76,22 @@ func (r *RoleController) Post(g *gin.Context) {
 		return
 	}
 
-	var rr models.Role
-	rr.Name = role.Name
-	rr.Enable = role.Enable
+	var role models.Role
+	role.Name = remoteRole.Name
+	role.Desc = remoteRole.Desc
+	role.Enable = remoteRole.Enable
 
-	err = models.AddRole(&rr)
+	err = models.AddRole(&role)
 	if err != nil {
 		output.InternalErrorJSON(g, err.Error())
 		return
 	}
 
 	g.JSON(200, gin.H{
-		"data": rr,
+		"data": role,
 	})
 }
-func (r *RoleController) Put(g *gin.Context) {
+func (controller *RoleController) Put(g *gin.Context) {
 	id, err := utils.ParamFromID(g, "id")
 	if err != nil {
 		output.BadRequestJSON(g, err.Error())
@@ -106,10 +115,8 @@ func (r *RoleController) Put(g *gin.Context) {
 		return
 	}
 
-	if remoteRole.Name != "" {
-		role.Name = remoteRole.Name
-
-		has, err = models.ExistRoleByName(0, role.Name)
+	if remoteRole.Name != "" && remoteRole.Name != role.Name {
+		has, err = models.ExistRoleByName(0, remoteRole.Name)
 		if err != nil {
 			output.InternalErrorJSON(g, err.Error())
 			return
@@ -118,9 +125,15 @@ func (r *RoleController) Put(g *gin.Context) {
 			output.BadRequestJSON(g, "role name repeat")
 			return
 		}
+		role.Name = remoteRole.Name
+	}
+
+	if remoteRole.Desc != "" {
+		role.Desc = remoteRole.Desc
 	}
 
 	role.Enable = remoteRole.Enable
+	log.Println(role)
 
 	err = models.UpdateRole(role)
 	if err != nil {

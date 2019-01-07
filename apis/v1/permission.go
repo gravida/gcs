@@ -32,7 +32,7 @@ func (controller *OperationController) List(c *gin.Context) {
 		return
 	}
 
-	total, _ := models.CountOperation()
+	total, _ := models.CountOperations()
 	output.SuccessJSON1(c, gin.H{
 		"pager": gin.H{"page": page, "pageSize": pageSize, "total": total},
 		"data":  operations,
@@ -234,52 +234,5 @@ func (controller *PermissionController) Post(c *gin.Context) {
 	})
 }
 func (controller *PermissionController) Put(g *gin.Context) {
-	id, err := utils.ParamFromID(g, "id")
-	if err != nil {
-		output.BadRequestJSON(g, err.Error())
-		return
-	}
 
-	role, has, err := models.QueryRoleByID(id)
-	if err != nil {
-		output.InternalErrorJSON(g, err.Error())
-		return
-	}
-	if !has {
-		output.BadRequestJSON(g, "role not found")
-		return
-	}
-
-	var remoteRole Role
-	err = g.BindJSON(&remoteRole)
-	if err != nil {
-		output.BadRequestJSON(g, err.Error())
-		return
-	}
-
-	if remoteRole.Name != "" {
-		role.Name = remoteRole.Name
-
-		has, err = models.ExistRoleByName(0, role.Name)
-		if err != nil {
-			output.InternalErrorJSON(g, err.Error())
-			return
-		}
-		if has {
-			output.BadRequestJSON(g, "role name repeat")
-			return
-		}
-	}
-
-	role.Enable = remoteRole.Enable
-
-	err = models.UpdateRole(role)
-	if err != nil {
-		output.InternalErrorJSON(g, err.Error())
-		return
-	}
-
-	g.JSON(200, gin.H{
-		"data": role,
-	})
 }

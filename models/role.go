@@ -6,7 +6,8 @@ import ()
 type Role struct {
 	Id      int64  `json:"id"`
 	Name    string `xorm:"UNIQUE NOT NULL" json:"name"`
-	Enable  bool   `json:"enable"`
+	Desc    string `xorm:"varchar(32)" json:"desc"`
+	Enable  bool   `xorm:"BOOL" json:"enable"`
 	Created int64  `xorm:"created" json:"created"`
 	Updated int64  `xorm:"updated" json:"updated"`
 }
@@ -30,7 +31,7 @@ func AddRole(r *Role) (err error) {
 
 // update
 func UpdateRole(r *Role) (err error) {
-	_, err = x.Id(r.Id).Update(r)
+	_, err = x.Id(r.Id).Cols("name").Cols("desc").Cols("enable").Update(r)
 	return err
 }
 
@@ -40,6 +41,13 @@ func ExistRoleByName(uid int64, name string) (bool, error) {
 		return false, nil
 	}
 	return x.Where("id != ?", uid).Get(&Role{Name: name})
+}
+
+// count
+func CountRoles() (total int64, err error) {
+	role := new(Role)
+	total, err = x.Count(role)
+	return total, err
 }
 
 // query
